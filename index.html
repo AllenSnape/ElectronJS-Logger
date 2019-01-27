@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>设置</title>
+  </head>
+  <body>
+    <h1>设置</h1>
+    <p>
+      We are using Node.js <script>document.write(process.versions.node)</script>,
+      Chromium <script>document.write(process.versions.chrome)</script>,
+      and Electron <script>document.write(process.versions.electron)</script>.
+    </p>
+    <hr>
+    <input type="text" id="homepage" placeholder="主页" /><button onclick="changeHomepage();">修改</button>
+    <hr>
+    <button onclick="goback();">返回</button>
+
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js');
+
+      const fs = require('fs');
+
+      let homepage = fs.readFileSync('./config.conf').toString('utf-8');
+      function readHomepage() {
+        document.getElementById('homepage').value = homepage;
+      }
+      readHomepage();
+
+      function changeHomepage() {
+        fs.writeFileSync('./config.conf', document.getElementById('homepage').value);
+        homepage = document.getElementById('homepage').value;
+      }
+
+      function goback() {
+        require('electron').remote.getCurrentWindow().loadURL(homepage);
+      }
+    </script>
+  </body>
+</html>
