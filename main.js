@@ -92,11 +92,12 @@ function createWindow () {
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
+  // 当页面中调用了beforeunload等离开限制事件时
   mainWindow.webContents.on('will-prevent-unload', (event) => {
     const choice = dialog.showMessageBox(mainWindow, {
       type: 'question',
-      title: '是否关闭?',
-      message: '确定退出?',
+      title: '确定离开?',
+      message: '确定离开该页面?',
       buttons: ['取消', '确定'],
       defaultId: 0,
       cancelId: 1
@@ -105,6 +106,11 @@ function createWindow () {
     if (leave) {
       event.preventDefault()
     }
+  });
+  // 当页面请求打开新页面时
+  mainWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
   });
 
   // Emitted when the window is closed.
