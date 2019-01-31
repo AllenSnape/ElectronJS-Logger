@@ -11,7 +11,7 @@ const logger = require('electron').remote.require('./logger');
 
 for (const key in _console) {
     console[key] = function () {
-        logger(Array.from(arguments).join(' ').toString());
+        logger(key.toUpperCase() + ' ' + Array.from(arguments).join(' ').toString());
         window._console[key](...arguments);
     };
 }
