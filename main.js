@@ -1,10 +1,11 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
-const fs = require('fs'), config = require('./config.js');
+const fs = require('fs'), path = require('path'), config = require('./config.js');
 
+// 首页
 const homepage = fs.readFileSync('./config.conf').toString('utf-8');
 
-// 自定义菜单
+// region 自定义菜单
 const template = [
   {
     label: '操作',
@@ -64,9 +65,27 @@ const template = [
     ]
   }
 ];
-
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
+// endregion
+
+// region 加载flash
+// 谷歌flash插件地址~\AppData\Local\Google\Chrome\User Data\PepperFlash\
+/*let pluginName;
+switch (process.platform) {
+  case 'win32':
+    pluginName = 'pepflashplayer.dll';
+    break;
+  case 'darwin':
+    pluginName = 'PepperFlashPlayer.plugin';
+    break;
+  case 'linux':
+    pluginName = 'libpepflashplayer.so';
+    break;
+}
+app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname, pluginName));
+app.commandLine.appendSwitch('ppapi-flash-version', '17.0.0.169');*/
+// endregion
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -76,6 +95,10 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1000, height: 720,
+    webPreferences: {
+      // plugins: true,
+      nodeIntegration: true
+    }
   });
   mainWindow.setTitle('日志收集器');
 
@@ -104,14 +127,14 @@ function createWindow () {
     });
     const leave = (choice === 1);
     if (leave) {
-      event.preventDefault()
+      event.preventDefault();
     }
   });
   // 当页面请求打开新页面时
-  mainWindow.webContents.on('new-window', (event, url) => {
+  /*mainWindow.webContents.on('new-window', (event, url) => {
     event.preventDefault();
     shell.openExternal(url);
-  });
+  });*/
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
