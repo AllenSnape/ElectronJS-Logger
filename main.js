@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell, webContents } = require('electron');
 const fs = require('fs'), path = require('path'), config = require('./config.js');
 
 // 首页
@@ -53,7 +53,7 @@ const template = [
       {
         label: '使用系统默认浏览器打开当前页面',
         click () {
-          shell.openExternal(mainWindow.webContents.getURL());
+          shell.openExternal(webContents.getFocusedWebContents().getURL());
         },
       },
     ]
