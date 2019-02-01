@@ -51,9 +51,9 @@ const template = [
       },
       { type: 'separator' },
       {
-        label: '使用系统默认浏览器打开网页',
+        label: '使用系统默认浏览器打开当前页面',
         click () {
-          shell.openExternal(mainWindow.getURL());
+          shell.openExternal(mainWindow.webContents.getURL());
         },
       },
     ]
@@ -61,7 +61,13 @@ const template = [
   {
     label: '帮助',
     submenu: [
-      {label: '设置', click () {mainWindow.loadFile('index.html');}}
+      {label: '设置', click () {mainWindow.loadFile('index.html');}},
+      {
+        label: '使用系统默认浏览器打开设置的链接',
+        click () {
+          shell.openExternal(homepage);
+        },
+      },
     ]
   }
 ];
