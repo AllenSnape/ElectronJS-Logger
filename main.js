@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, Menu, dialog, shell, webContents } = require('electron');
-const fs = require('fs'), path = require('path'), config = require('./config.js');
+const fs = require('fs'), /*path = require('path'), */
+    config = require('./config.js'), child_process = require('child_process');
 
 // 配置文件地址
 const CONFIG_FILE = './config.conf';
@@ -155,7 +156,31 @@ function createWindow () {
     if (url) {
       // 当为RTMP开头时, 使用系统级播放器打开
       if (url.toLowerCase().startsWith('rtmp://')) {
-
+        if (configInFile['RTMPPlayer']) {
+          try {
+            child_process.exec('"' + configInFile['RTMPPlayer'] + '" "' + url + '"', error => {
+              if (error) {
+                dialog.showMessageBox(mainWindow, {
+                  type: 'error',
+                  title: '错误',
+                  message: '打开直播播放器失败: ' + error,
+                });
+              }
+            });
+          } catch (e) {
+            dialog.showMessageBox(mainWindow, {
+              type: 'error',
+              title: '错误',
+              message: '打开直播播放器失败: ' + e.message,
+            });
+          }
+        } else {
+          dialog.showMessageBox(mainWindow, {
+            type: 'warning',
+            title: '配置文件错误',
+            message: '未配置直播播放器!',
+          });
+        }
         event.preventDefault();
       }
     }
