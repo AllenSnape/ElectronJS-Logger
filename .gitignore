@@ -2,3 +2,4 @@ node_modules
 .idea
 logs
 网页日志收集器*
+config.conf

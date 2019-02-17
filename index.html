@@ -1,8 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
   <head>
     <meta charset="UTF-8">
     <title>设置</title>
+    <style>
+      input {
+        border: 1px solid #535353;
+        border-radius: 4px;
+        padding: 3px 5px;
+        margin-left: 10px;
+      }
+      button {
+        padding: 3px 5px 0 5px;
+      }
+    </style>
   </head>
   <body>
     <h1>设置</h1>
@@ -12,29 +23,61 @@
       and Electron <script>document.write(process.versions.electron)</script>.
     </p>
     <hr>
-    <input type="text" id="homepage" placeholder="主页" /><button onclick="changeHomepage();">修改</button>
+    <p>
+      <label for="homepage">主页: </label>
+      <input type="text" id="homepage" placeholder="默认访问地址" style="width: 300px" />
+    </p>
+    <p>
+      <label for="RTMPPlayer">直播播放器: </label>
+      <input type="text" id="RTMPPlayer" placeholder="直播播放器地址" style="width: 500px" />
+    </p>
     <hr>
-    <button onclick="goback();">返回</button>
+    <button onclick="goBack();">返回</button>
+    <button onclick="save();">保存</button>
 
     <script>
       // You can also require other files to run in this process
       require('./renderer.js');
-
       const fs = require('fs');
 
-      let homepage = fs.readFileSync('./config.conf').toString('utf-8');
-      function readHomepage() {
-        document.getElementById('homepage').value = homepage;
-      }
-      readHomepage();
+      // 配置文件地址
+      const CONFIG_FILE = './config.conf';
 
-      function changeHomepage() {
-        fs.writeFileSync('./config.conf', document.getElementById('homepage').value);
-        homepage = document.getElementById('homepage').value;
+      // 读取配置
+      let config = {};
+      if (fs.existsSync(CONFIG_FILE)) {
+        config = fs.readFileSync(CONFIG_FILE).toString('utf-8');
+        try {
+          config = JSON.parse(config);
+        } catch (e) {
+          config = {};
+        }
       }
 
-      function goback() {
-        require('electron').remote.getCurrentWindow().loadURL(homepage);
+      // 回填配置
+      for (const key in config) {
+        const i = document.getElementById(key);
+        if (i && i instanceof HTMLInputElement) i.value = config[key];
+      }
+
+      /**
+       * 保存配置
+       */
+      function save() {
+        const inputs = document.getElementsByTagName('input');
+        for (const i of inputs) {
+          config[i.id] = i.value;
+        }
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config));
+        alert('保存成功!');
+        goBack();
+      }
+
+      /**
+       * 返回
+       */
+      function goBack() {
+        require('electron').remote.getCurrentWindow().loadURL(config['homepage']);
       }
     </script>
   </body>

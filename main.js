@@ -2,8 +2,18 @@
 const { app, BrowserWindow, Menu, dialog, shell, webContents } = require('electron');
 const fs = require('fs'), path = require('path'), config = require('./config.js');
 
-// 首页
-const homepage = fs.readFileSync('./config.conf').toString('utf-8');
+// 配置文件地址
+const CONFIG_FILE = './config.conf';
+
+// 获取配置的首页
+let configInFile = {};
+if (fs.existsSync(CONFIG_FILE)) {
+  try {
+    configInFile = JSON.parse(fs.readFileSync(CONFIG_FILE).toString('utf-8'));
+  } catch (e) {
+    console.warn('读取配置出错', e);
+  }
+}
 
 // region 自定义菜单
 const template = [
@@ -110,7 +120,11 @@ function createWindow () {
 
   // and load the index.html of the app.
   // mainWindow.loadFile('index.html');
-  mainWindow.loadURL(homepage);
+  if (configInFile['homepage']) {
+    mainWindow.loadURL(configInFile['homepage']);
+  } else {
+    mainWindow.loadFile('index.html');
+  }
   mainWindow.webContents.on('dom-ready', () => {
     const ignore = mainWindow.webContents.executeJavaScript(
       fs.readFileSync('./logger-injector.js').toString('utf-8')
@@ -137,10 +151,15 @@ function createWindow () {
     }
   });
   // 当页面请求打开新页面时
-  /*mainWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });*/
+  mainWindow.webContents.on('new-window', (event, url) => {
+    if (url) {
+      // 当为RTMP开头时, 使用系统级播放器打开
+      if (url.toLowerCase().startsWith('rtmp://')) {
+
+        event.preventDefault();
+      }
+    }
+  });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
