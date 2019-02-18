@@ -130,6 +130,9 @@ function createWindow () {
   });
   mainWindow.setTitle('日志收集器');
 
+  // 设置主页面的全局ID
+  global.mainWindow = {id: mainWindow.id};
+
   // and load the index.html of the app.
   // mainWindow.loadFile('index.html');
   if (configInFile['homepage']) {
