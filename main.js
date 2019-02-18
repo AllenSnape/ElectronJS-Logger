@@ -8,13 +8,20 @@ const CONFIG_FILE = './config.conf';
 
 // 获取配置的首页
 let configInFile = {};
-if (fs.existsSync(CONFIG_FILE)) {
-  try {
-    configInFile = JSON.parse(fs.readFileSync(CONFIG_FILE).toString('utf-8'));
-  } catch (e) {
-    console.warn('读取配置出错', e);
+
+/**
+ * 读取文件配置
+ */
+function readConfigFile() {
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      configInFile = JSON.parse(fs.readFileSync(CONFIG_FILE).toString('utf-8'));
+    } catch (e) {
+      console.warn('读取配置出错', e);
+    }
   }
 }
+readConfigFile();
 
 // region 自定义菜单
 const template = [
@@ -76,7 +83,11 @@ const template = [
       {
         label: '使用系统默认浏览器打开设置的链接',
         click () {
-          shell.openExternal(homepage);
+          if (configInFile['homepage']) {
+            mainWindow.loadURL(configInFile['homepage']);
+          } else {
+            mainWindow.loadFile('index.html');
+          }
         },
       },
     ]
@@ -156,6 +167,8 @@ function createWindow () {
     if (url) {
       // 当为RTMP开头时, 使用系统级播放器打开
       if (url.toLowerCase().startsWith('rtmp://')) {
+        // 读取最新的配置
+        readConfigFile();
         if (configInFile['RTMPPlayer']) {
           try {
             child_process.exec('"' + configInFile['RTMPPlayer'] + '" "' + url + '"', error => {

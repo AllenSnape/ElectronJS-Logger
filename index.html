@@ -30,6 +30,7 @@
     <p>
       <label for="RTMPPlayer">直播播放器: </label>
       <input type="text" id="RTMPPlayer" placeholder="直播播放器地址" style="width: 500px" />
+      <button type="button" onclick="chooseRTMPPlayer();">选择</button>
     </p>
     <hr>
     <button onclick="goBack();">返回</button>
@@ -39,6 +40,7 @@
       // You can also require other files to run in this process
       require('./renderer.js');
       const fs = require('fs');
+      const {remote} = require('electron');
 
       // 配置文件地址
       const CONFIG_FILE = './config.conf';
@@ -58,6 +60,21 @@
       for (const key in config) {
         const i = document.getElementById(key);
         if (i && i instanceof HTMLInputElement) i.value = config[key];
+      }
+
+      function chooseRTMPPlayer() {
+        remote.dialog.showOpenDialog(
+          remote.getCurrentWindow(),
+          {
+            title: '请选择直播播放器',
+            filters: [
+              {name: '可执行文件', extensions: ['exe', 'cmd']},
+              {name: '全部文件', extensions: ['*']}
+            ],
+            properties: ['openFile']
+          },
+          filePaths => filePaths ? document.getElementById('RTMPPlayer').value = filePaths : null
+        );
       }
 
       /**
